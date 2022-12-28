@@ -5,7 +5,7 @@ using ScanResultAPI.DTO;
 using ScanResultAPI.Services.Interfaces;
 using System;
 using System.IO;
-using System.Text.Json;
+using Newtonsoft.Json;
 
 namespace ScanResultAPI.Controllers
 {
@@ -113,6 +113,36 @@ namespace ScanResultAPI.Controllers
         {
             var result = _scanInfoService.GetStatistic();
             return Ok(result);
+        }
+
+        /// <summary>
+        /// Загрузка файла
+        /// </summary>
+        [HttpPost("newErrors")]
+        public IActionResult TryUploadFile([FromBody] ScanData data)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            string fileName = DateTime.Now.ToString().Replace(":", "-") + ".json";
+            string path = Path.Combine(_hostEnvironment.WebRootPath, fileName);
+
+            try
+            {
+                using (StreamWriter file = System.IO.File.CreateText(path))
+                {
+                    JsonSerializer serializer = new JsonSerializer();
+                    serializer.Serialize(file, data);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Возникло непредвиденное исключение: " + ex.Message);
+            }
+
+            return Ok("Файл записан: " + fileName);
         }
     }
 }

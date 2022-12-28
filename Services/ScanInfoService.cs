@@ -17,23 +17,11 @@ namespace ScanResultAPI.Services
             _scanData = GetScanData(path);
         }
 
-        public async Task<(bool Succeeded, string Error, ScanData? ScanData)> GetScanDataFromFile(string fileName)
+        public async Task<(bool Succeeded, IList<string> Errors, ScanData? ScanData)> GetScanDataFromText(string data)
         {
-            if (fileName.Equals("data.json"))
-            {
-                return (true, "", _scanData);
-            }
 
-            var path = Path.Combine(_hostEnvironment.WebRootPath, fileName);
 
-            if (!System.IO.File.Exists(path))
-            {
-                return (false, "Файл не найден", null);
-            }
-
-            ScanData? scanData = GetScanData(path);
-
-            return (true, "", scanData);
+            return (true, new List<string>(), null);
         }
 
         private static ScanData? GetScanData(string path)
@@ -51,7 +39,7 @@ namespace ScanResultAPI.Services
 
         public IList<string> GetFilesNames(bool result)
         {
-            var files = _scanData?.Files.Where(f => f.Result == result).Select(f => f.Name).ToList();
+            var files = _scanData?.Files.Where(f => f.Result == result).Select(f => f.FileName).ToList();
 
             return files;
         }
@@ -60,19 +48,19 @@ namespace ScanResultAPI.Services
         {
             var files = _scanData?.Files.Where(f => f.Result == false).Select(f => new FileWithError
             {
-                Name = f.Name,
-                Errors = f.Errors.Select(e => e.ErrorMessage).ToList()
+                Name = f.FileName,
+                Errors = f.Errors.Select(e => e.Error).ToList()
             }).ToList();
             return files;
         }
 
         public Statistic GetStatistic()
         {
-            var files = _scanData?.Files.Where(f => f.Name.ToLower().TrimStart().StartsWith("query_")).ToList();
+            var files = _scanData?.Files.Where(f => f.FileName.ToLower().TrimStart().StartsWith("query_")).ToList();
 
             int total = files.Count;
 
-            var errorFiles = files.Where(f => f.Result == false).Select(f => f.Name).ToArray();
+            var errorFiles = files.Where(f => f.Result == false).Select(f => f.FileName).ToArray();
             int errors = errorFiles.Count();
             int correct = total - errors;
 
@@ -85,6 +73,7 @@ namespace ScanResultAPI.Services
             };
             return result;
         }
+
 
     }
 }
