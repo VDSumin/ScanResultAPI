@@ -4,6 +4,10 @@ namespace ScanResultAPI.Services.Interfaces
 {
     public interface IScanInfoService
     {
-        public Task<(bool Succeeded, string Error, ScanData? ScanData)> GetScanDataFromFile(string fileName);
+        Task<(bool Succeeded, string Error, ScanData? ScanData)> GetScanDataFromFile(string fileName);
+        ScanInfo? GetScanInfo();
+        IList<string> GetFilesNames(bool result);
+        IList<DTO.FileWithError> GetFilesWithError();
+        Statistic GetStatistic();
     }
 }

@@ -25,12 +25,12 @@ namespace ScanResultAPI.Services
             }
 
             var path = Path.Combine(_hostEnvironment.WebRootPath, fileName);
-            
+
             if (!System.IO.File.Exists(path))
             {
                 return (false, "Файл не найден", null);
             }
-            
+
             ScanData? scanData = GetScanData(path);
 
             return (true, "", scanData);
@@ -42,6 +42,48 @@ namespace ScanResultAPI.Services
             JsonSerializer serializer = new JsonSerializer();
             ScanData? scanData = (ScanData)serializer.Deserialize(file, typeof(ScanData));
             return scanData;
+        }
+
+        public ScanInfo? GetScanInfo()
+        {
+            return _scanData?.Scan;
+        }
+
+        public IList<string> GetFilesNames(bool result)
+        {
+            var files = _scanData?.Files.Where(f => f.Result == result).Select(f => f.Name).ToList();
+
+            return files;
+        }
+
+        public IList<DTO.FileWithError> GetFilesWithError()
+        {
+            var files = _scanData?.Files.Where(f => f.Result == false).Select(f => new FileWithError
+            {
+                Name = f.Name,
+                Errors = f.Errors.Select(e => e.ErrorMessage).ToList()
+            }).ToList();
+            return files;
+        }
+
+        public Statistic GetStatistic()
+        {
+            var files = _scanData?.Files.Where(f => f.Name.ToLower().TrimStart().StartsWith("query_")).ToList();
+
+            int total = files.Count;
+
+            var errorFiles = files.Where(f => f.Result == false).Select(f => f.Name).ToArray();
+            int errors = errorFiles.Count();
+            int correct = total - errors;
+
+            var result = new Statistic
+            {
+                Total = total,
+                Correct = correct,
+                Errors = errors,
+                Files = errorFiles
+            };
+            return result;
         }
 
     }
