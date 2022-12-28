@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+﻿using Newtonsoft.Json;
 
 namespace ScanResultAPI.DTO
 {
@@ -6,10 +6,10 @@ namespace ScanResultAPI.DTO
     {
         public string Module { get; set; }
 
-        [JsonPropertyName("ecode")]
+        [JsonProperty("ecode")]
         public int Code { get; set; }
 
-        [JsonPropertyName("error")]
+        [JsonProperty("error")]
         public string ErrorMessage { get; set; }
     }
 }

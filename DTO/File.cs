@@ -1,10 +1,10 @@
-﻿using System.Text.Json.Serialization;
+﻿using Newtonsoft.Json;
 
 namespace ScanResultAPI.DTO
 {
     public class File
     {
-        [JsonPropertyName("filename")]
+        [JsonProperty("filename")]
         public string Name { get; set; }
         public bool? Result { get; set; }
         public List<Error>? Errors { get; set; }
